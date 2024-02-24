@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const path = require("path");
-const signup = require("./schemas/signup_schema.js");
+
+const Signup = require("./schemas/signup_schema.js");
 const committee = require("./schemas/committee_schema.js");
 const http = require("http");
 const cookieParser = require("cookie-parser");
@@ -21,13 +22,30 @@ mongoose.connect(
 // app.use(express.static(__dirname + "/CSS Styling"));
 app.use("/assets", express.static(path.join(__dirname, "/assets")));
 app.use("/CSS", express.static(path.join(__dirname, "/CSS")));
+// mongoose.connection.on("connected", () => {
+//   console.log("Database connected successfully");
+// });
+// mongoose.connection.on("error", (error) => {
+//   console.log("Error while connecting with the database ", error.message);
+// });
 
+// const Note = mongoose;
+
+// const notes = {
+//   name: String,
+// };
+
+// const Note = mongoose.model("Note", notes);
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/community.html");
+  res.sendFile(__dirname + "/Login.html");
 });
 
 app.get("/signup", function (req, res) {
   res.sendFile(__dirname + "/index.html");
+});
+
+app.get("/test1.html", function (req, res) {
+  res.sendFile(__dirname + "/test1.html");
 });
 
 // app.post("/", function (req, res) {
@@ -38,7 +56,7 @@ app.get("/signup", function (req, res) {
 // });
 
 app.post("/signup", function (req, res) {
-  let newSignup = new signup({
+  let newSignup = new Signup({
     fname: req.body.fname,
     lname: req.body.lname,
     rollNo: req.body.rollno,
@@ -49,13 +67,14 @@ app.post("/signup", function (req, res) {
     role: "student",
   });
   newSignup.save();
+  res.redirect("/");
 });
 
 app.post("/", async (req, res) => {
   const uname = req.body.uname;
   const pswd = req.body.pswd;
 
-  const luser = await SignUp.findOne({ uname });
+  const luser = await Signup.findOne({ uname });
   const user_id = luser._id;
   let isMatch = false;
   console.log(pswd + "  " + luser.pswd1);
@@ -69,7 +88,11 @@ app.post("/", async (req, res) => {
       expires: new Date(Date.now() + 1800000),
       httpOnly: true,
     });
-    console.log(req.cookies);
+    // res.cookie("jwt", user_id);
+    // const jwt.sign()
+    console.log("usid :" + user_id);
+    const decoded = req.cookies.jwt;
+    console.log("Cookie:" + decoded);
   } catch (e) {
     console.log(e);
   }
@@ -101,20 +124,21 @@ app.post("/", async (req, res) => {
   }
 });
 
-app.listen(3000, function () {
-  console.log("server is running on 3000");
+app.get("/committee", function (req, res) {
+  res.sendFile(__dirname + "/Committee.html");
+  // let newCommittee = new committee({
+  //   fname: req.body.fname,
+  //   lname: req.body.lname,
+  //   rollNo: req.body.rollno,
+  //   uname: req.body.uname,
+  //   email: req.body.email,
+  //   pswd1: req.body.pswd1,
+  //   pswd2: req.body.pswd2,
+  //   role: "student",
+  // });
+  // newSignup.save();
 });
 
-app.post("/signup", function (req, res) {
-  let newSignup = new signup({
-    fname: req.body.fname,
-    lname: req.body.lname,
-    rollNo: req.body.rollno,
-    uname: req.body.uname,
-    email: req.body.email,
-    pswd1: req.body.pswd1,
-    pswd2: req.body.pswd2,
-    role: "student",
-  });
-  newSignup.save();
+app.listen(3000, function () {
+  console.log("server is running on 3000");
 });

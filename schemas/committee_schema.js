@@ -4,10 +4,10 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const community = {
+const committee = {
   cname: { type: String, required: true },
   members: { type: [String], required: true },
 };
 
-const Community = mongoose.model("SignUp", community);
-module.exports = Community;
+const Committee = mongoose.model("Committee", committee);
+module.exports = Committee;
