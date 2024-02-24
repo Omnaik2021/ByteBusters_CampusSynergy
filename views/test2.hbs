@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .hidden-column {
+            display: none;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Four Column Table</title>
+</head>
+<body>
+    
+<table border="1">
+    <thead>
+        <tr>
+            <th>Committee Name</th>
+            <th class="hidden-column">ID</th>
+            <th>Email Ids</th>
+            <th>Accept</th>
+            <th>Reject</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each listy }}
+
+        <tr>
+            <td>{{cname}}</td>
+             <td  class="hidden-column">{{_id}}</td>
+            <td>{{#each members }} {{this}}<br> {{/each}}</td>
+
+            <td><a href="admin_accept?data1={{_id}}"><button class="acknowledge_button">Accept</button></a></td>
+            <td><a href="admin_reject?data1={{_id}}"><button class="acknowledge_button">Reject</button></a></td>
+        </tr>
+            {{/each}}
+        
+        <!-- Add more rows as needed -->
+    </tbody>
+</table>
+
+
+</body>
+</html>

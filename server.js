@@ -11,10 +11,13 @@ const http = require("http");
 const cookieParser = require("cookie-parser");
 
 const { log } = require("console");
+const Committee = require("./schemas/committee_schema.js");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-mongoose.connect(
+app.set("view engine","hbs")
+
+const mg = mongoose.connect(
   "mongodb+srv://kristen:kris@cluster0.yt2jjtk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
   { useNewUrlParser: true }
 );
@@ -38,6 +41,15 @@ app.use("/CSS", express.static(path.join(__dirname, "/CSS")));
 // const Note = mongoose.model("Note", notes);
 app.get("/", function (req, res) {
   res.sendFile(__dirname + "/Login.html");
+});
+
+app.get("/test2", async (req, res) => {
+
+const luser2 = await Committee.find({});
+console.log(luser2);
+// res.sendFile(__dirname + "/test2.html");
+// res.json(luser2);
+res.render("test2.hbs", {listy:luser2} )
 });
 
 app.get("/signup", function (req, res) {
@@ -142,10 +154,42 @@ app.post("/committee", function (req, res) {
     cname: req.body.cname,
     members: all_members,
     count: memberCount,
+    status:"pending",
   });
   console.log(newCommittee);
   newCommittee.save();
 });
+
+app.get("/admin_accept", async(req, res)=> {
+  const id = req.query.data1;
+  const post_id = { _id: id};
+  const updateDoc = { $set: {status: "accepted" } };
+  const result = await Committee.updateOne(post_id, updateDoc)
+})
+
+
+app.get("/admin_reject", async(req, res)=> {
+  const id = req.query.data1;
+  const post_id = { _id: id};
+  const updateDoc = { $set: {status: "rejected" } };
+  const result = await Committee.updateOne(post_id, updateDoc)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.listen(3000, function () {
   console.log("server is running on 3000");

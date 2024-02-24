@@ -8,6 +8,7 @@ const committee = {
   cname: { type: String, required: true },
   members: { type: [String], required: true },
   memCount: { type: Number },
+  status: {type:String}
 };
 
 const Committee = mongoose.model("Committee", committee);
