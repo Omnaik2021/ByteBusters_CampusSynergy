@@ -3,9 +3,8 @@ const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const path = require("path");
-// impoconrt Note from "schema.js";
 const signup = require("./schemas/signup_schema.js");
-const SignUp = require("./schemas/signup_schema.js");
+const committee = require("./schemas/committee_schema.js");
 const http = require("http");
 const cookie = require("cookie");
 const { log } = require("console");
@@ -20,34 +19,14 @@ mongoose.connect(
 // app.use(express.static(__dirname + "/CSS Styling"));
 app.use("/assets", express.static(path.join(__dirname, "/assets")));
 app.use("/CSS", express.static(path.join(__dirname, "/CSS")));
-// mongoose.connection.on("connected", () => {
-//   console.log("Database connected successfully");
-// });
-// mongoose.connection.on("error", (error) => {
-//   console.log("Error while connecting with the database ", error.message);
-// });
 
-// const Note = mongoose;
-
-// const notes = {
-//   name: String,
-// };
-
-// const Note = mongoose.model("Note", notes);
 app.get("/", function (req, res) {
-  res.sendFile(__dirname + "/Login.html");
+  res.sendFile(__dirname + "/community.html");
 });
 
 app.get("/signup", function (req, res) {
   res.sendFile(__dirname + "/index.html");
 });
-
-// app.post("/", function (req, res) {
-//   let newNote = new Note({
-//     name: req.body.userInput,
-//   });
-//   newNote.save();
-// });
 
 app.post("/signup", function (req, res) {
   let newSignup = new signup({
@@ -81,7 +60,7 @@ app.post("/", async (req, res) => {
       expires: new Date(Date.now() + 1800000),
       httpOnly: true,
     });
-    console.log(req.cookies);
+    console.log(res.cookie.name);
   } catch (e) {
     console.log(e);
   }
@@ -115,4 +94,18 @@ app.post("/", async (req, res) => {
 
 app.listen(3000, function () {
   console.log("server is running on 3000");
+});
+
+app.post("/signup", function (req, res) {
+  let newSignup = new signup({
+    fname: req.body.fname,
+    lname: req.body.lname,
+    rollNo: req.body.rollno,
+    uname: req.body.uname,
+    email: req.body.email,
+    pswd1: req.body.pswd1,
+    pswd2: req.body.pswd2,
+    role: "student",
+  });
+  newSignup.save();
 });
