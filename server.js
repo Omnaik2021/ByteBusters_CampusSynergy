@@ -2,16 +2,18 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const jwt= require("jsonwebtoken")
 const path = require("path");
 // impoconrt Note from "schema.js";
 const signup = require("./schemas/signup_schema.js");
 const SignUp = require("./schemas/signup_schema.js");
 const http = require("http");
-const cookie = require("cookie");
+const cookieParser = require("cookie-parser");
+
 const { log } = require("console");
 
 app.use(bodyParser.urlencoded({ extended: true }));
-
+app.use(cookieParser())
 mongoose.connect(
   "mongodb+srv://kristen:kris@cluster0.yt2jjtk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
   { useNewUrlParser: true }
@@ -41,6 +43,11 @@ app.get("/", function (req, res) {
 app.get("/signup", function (req, res) {
   res.sendFile(__dirname + "/index.html");
 });
+
+app.get("/test1.html", function (req, res) {
+  res.sendFile(__dirname + "/test1.html");
+});
+
 
 // app.post("/", function (req, res) {
 //   let newNote = new Note({
@@ -81,7 +88,11 @@ app.post("/", async (req, res) => {
       expires: new Date(Date.now() + 1800000),
       httpOnly: true,
     });
-    console.log(req.cookies);
+    // res.cookie("jwt", user_id);
+    // const jwt.sign()
+    // console.log("usid :"+ user_id);
+    // const decoded = (req.cookies.jwt);
+    // console.log("Cookie:"+ decoded);
   } catch (e) {
     console.log(e);
   }
