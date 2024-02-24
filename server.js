@@ -126,17 +126,25 @@ app.post("/", async (req, res) => {
 
 app.get("/committee", function (req, res) {
   res.sendFile(__dirname + "/Committee.html");
-  // let newCommittee = new committee({
-  //   fname: req.body.fname,
-  //   lname: req.body.lname,
-  //   rollNo: req.body.rollno,
-  //   uname: req.body.uname,
-  //   email: req.body.email,
-  //   pswd1: req.body.pswd1,
-  //   pswd2: req.body.pswd2,
-  //   role: "student",
-  // });
-  // newSignup.save();
+});
+
+app.post("/committee", function (req, res) {
+  var memberCount = req.body.custId;
+  console.log(memberCount);
+  var all_members = new Array(memberCount);
+  for (var i = 1; i <= memberCount; i++) {
+    // Access each member by name (mem1, mem2, mem3, etc.)
+    let it = "mem" + i;
+    // console.log("data " + req.body[it]);
+    all_members[i - 1] = req.body[it];
+  }
+  let newCommittee = new committee({
+    cname: req.body.cname,
+    members: all_members,
+    count: memberCount,
+  });
+  console.log(newCommittee);
+  newCommittee.save();
 });
 
 app.listen(3000, function () {

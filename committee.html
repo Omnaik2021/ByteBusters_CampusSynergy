@@ -33,33 +33,51 @@
         <div class="col-md-6 right-box">
           <div class="row align-items-center">
             <div class="header-text mb-4">
-              <h2>Welcome to CampusSynergy Community!</h2>
+              <h2>Welcome to CampusSynergy Committee!</h2>
             </div>
-            <form>
+            <form method="post">
               <div class="input-group mb-3">
                 <input
                   type="text"
                   class="form-control form-control-lg bg-light fs-6"
                   placeholder="Enter Community Name"
+                  name="cname"
                 />
+                <input type="hidden" id="custId" name="custId" />
               </div>
-              <label for="usr">Add Members</label>
+              <!-- <label for="usr">Enter Number of Members</label>
+              <div class="input-group mb-2">
+                <input
+                  type="text"
+                  class="form-control form-control-lg bg-light fs-6"
+                  placeholder="Number "
+                  name="memberCount"
+                />
+              </div> -->
+              <label for="usr">Enter Official Email of Members</label>
               <div class="input-group mb-1">
                 <input
                   type="text"
                   class="form-control form-control-lg bg-light fs-6"
-                  placeholder="Member Name"
+                  placeholder="Email "
+                  name="mem1"
                   id="usr"
                 />
               </div>
-              <div class="input-group mb-2 d-flex justify-content-between">
+              <div
+                class="input-group mb-2 d-flex justify-content-between flex-row-reverse"
+              >
                 <button class="btn btn-success add_item_btn rounded">+</button>
                 <button class="btn btn-danger remove_item_btn rounded">
                   -
                 </button>
               </div>
               <div class="input-group mb-5 d-flex justify-content-between">
-                <button class="btn btn-lg btn-primary w-100 fs-6">
+                <button
+                  id="form comm"
+                  class="btn btn-lg btn-primary w-100 fs-6"
+                  type="submit"
+                >
                   Form Community
                 </button>
               </div>
@@ -89,8 +107,10 @@
           const input = document.createElement("input");
           input.type = "text";
           input.className = "form-control form-control-lg bg-light fs-6";
-          input.placeholder = "Member Name " + memberCount;
-
+          input.placeholder = "Email " + memberCount;
+          input.name = "mem" + memberCount;
+          const memEle = document.getElementById("custId");
+          memEle.value = memberCount;
           inputGroup.appendChild(input);
           document
             .querySelector(".input-group.d-flex.justify-content-between")
@@ -119,7 +139,7 @@
         document
           .querySelector(".remove_item_btn")
           .addEventListener("click", function (event) {
-            // event.preventDefault();
+            event.preventDefault();
             removeMemberField();
           });
       });

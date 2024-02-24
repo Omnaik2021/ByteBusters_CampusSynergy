@@ -7,6 +7,7 @@ app.use(express.urlencoded({ extended: true }));
 const committee = {
   cname: { type: String, required: true },
   members: { type: [String], required: true },
+  memCount: { type: Number },
 };
 
 const Committee = mongoose.model("Committee", committee);
