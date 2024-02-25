@@ -2,8 +2,10 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
 const path = require("path");
+const nodemailer = require('nodemailer');
+require('dotenv').config()
 
 const Signup = require("./schemas/signup_schema.js");
 const committee = require("./schemas/committee_schema.js");
@@ -18,7 +20,7 @@ app.use(cookieParser());
 app.set("view engine","hbs")
 
 const mg = mongoose.connect(
-  "mongodb+srv://kristen:kris@cluster0.yt2jjtk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0",
+  process.env.MDB,
   { useNewUrlParser: true }
 );
 // app.use(express.static(__dirname + "/assets"));
@@ -45,8 +47,9 @@ app.get("/", function (req, res) {
 
 app.get("/test2", async (req, res) => {
 
-const luser2 = await Committee.find({});
+const luser2 = await Committee.find({status:"pending"});
 console.log(luser2);
+// console.log(process.env.S3_BUCKET)
 // res.sendFile(__dirname + "/test2.html");
 // res.json(luser2);
 res.render("test2.hbs", {listy:luser2} )
@@ -163,16 +166,88 @@ app.post("/committee", function (req, res) {
 app.get("/admin_accept", async(req, res)=> {
   const id = req.query.data1;
   const post_id = { _id: id};
+  const emailq= await Committee.findOne({_id:id})
+  console.log("here: "+emailq.members);
   const updateDoc = { $set: {status: "accepted" } };
   const result = await Committee.updateOne(post_id, updateDoc)
+  
+  // console.log(process.env.USER);
+  // console.log(process.env.PASS);
+  const transporter = nodemailer.createTransport({
+    port: 465,               // true for 465, false for other ports
+    host: "smtp.gmail.com",
+       auth: {
+            user: process.env.USER,
+           
+            pass: process.env.PASS,
+            
+         },
+    secure: true,
+    });
+
+    const mailData = {
+      from: process.env.USER,  // sender address
+        to:emailq.members,   // list of receivers
+        subject: 'Your Request for forming a committee has been Accepted',
+        text: process.env.TEXT,
+        html: '<b>Hey there! </b> <br> Your Request for forming a committee has been accepted by the Admin<br/> Use the below credentials to Login<br> Username: Dummy <br> Password: Dummy',
+      };
+
+
+      // An array of attachments
+    //   attachments: [
+    //     {
+    //         filename: 'text notes.txt',
+    //         path: 'notes.txt
+    //     },
+    //  ]
+
+    transporter.sendMail(mailData, function (err, info) {
+      if(err)
+        console.log(err)
+      else
+        console.log(info);
+   });
 })
 
 
 app.get("/admin_reject", async(req, res)=> {
   const id = req.query.data1;
   const post_id = { _id: id};
+  const emailq= await Committee.findOne({_id:id})
+  console.log("here: "+emailq.members);
   const updateDoc = { $set: {status: "rejected" } };
   const result = await Committee.updateOne(post_id, updateDoc)
+
+
+  const transporter = nodemailer.createTransport({
+    port: 465,               // true for 465, false for other ports
+    host: "smtp.gmail.com",
+       auth: {
+            user: process.env.USER,
+           
+            pass: process.env.PASS,
+            
+         },
+    secure: true,
+    });
+
+    const mailData = {
+      from: process.env.USER,  // sender address
+        to:emailq.members,   // list of receivers
+        subject: 'Your Request for forming a committee has been Rejected',
+        text: process.env.TEXT,
+        html: '<b>Hey there! </b> <br>Sorry to inform your Request for forming a committee has been <b>Rejected</b> by the Admin<br/> Rejection Reason: Dummy',
+      };
+
+
+      transporter.sendMail(mailData, function (err, info) {
+        if(err)
+          console.log(err)
+        else
+          console.log(info);
+     });
+
 })
 
 
