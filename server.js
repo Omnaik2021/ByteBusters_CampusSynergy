@@ -4,8 +4,8 @@ const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 // const jwt = require("jsonwebtoken");
 const path = require("path");
-const nodemailer = require('nodemailer');
-require('dotenv').config()
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const Signup = require("./schemas/signup_schema.js");
 const committee = require("./schemas/committee_schema.js");
@@ -17,12 +17,9 @@ const Committee = require("./schemas/committee_schema.js");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.set("view engine","hbs")
+app.set("view engine", "hbs");
 
-const mg = mongoose.connect(
-  process.env.MDB,
-  { useNewUrlParser: true }
-);
+const mg = mongoose.connect(process.env.MDB, { useNewUrlParser: true });
 // app.use(express.static(__dirname + "/assets"));
 // app.use(express.static(__dirname + "/CSS Styling"));
 app.use("/assets", express.static(path.join(__dirname, "/assets")));
@@ -46,13 +43,12 @@ app.get("/", function (req, res) {
 });
 
 app.get("/test2", async (req, res) => {
-
-const luser2 = await Committee.find({status:"pending"});
-console.log(luser2);
-// console.log(process.env.S3_BUCKET)
-// res.sendFile(__dirname + "/test2.html");
-// res.json(luser2);
-res.render("test2.hbs", {listy:luser2} )
+  const luser2 = await Committee.find({ status: "pending" });
+  console.log(luser2);
+  // console.log(process.env.S3_BUCKET)
+  // res.sendFile(__dirname + "/test2.html");
+  // res.json(luser2);
+  res.render("test2.hbs", { listy: luser2 });
 });
 
 app.get("/signup", function (req, res) {
@@ -125,7 +121,7 @@ app.post("/", async (req, res) => {
 
       if (luser.role === "student") {
         // res.render("admin", {user} );
-        res.redirect("http://localhost:3000/test1.html");
+        res.render("Homepage.hbs", { isLogin: true });
         console.log("student login succesfull");
       } else {
         res.redirect("test2.html");
@@ -156,115 +152,126 @@ app.post("/committee", function (req, res) {
   let newCommittee = new committee({
     cname: req.body.cname,
     members: all_members,
-    count: memberCount,
-    status:"pending",
+    desc: req.body.desc,
+    memCount: memberCount,
+    status: "pending",
   });
   console.log(newCommittee);
   newCommittee.save();
 });
 
-app.get("/admin_accept", async(req, res)=> {
+function createRandomString() {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let result = "";
+  for (let i = 0; i < 6; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+function createUser() {
+  const chars = "0123456789";
+  let result = "";
+  for (let i = 0; i < 4; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
+app.get("/admin_accept", async (req, res) => {
   const id = req.query.data1;
-  const post_id = { _id: id};
-  const emailq= await Committee.findOne({_id:id})
-  console.log("here: "+emailq.members);
-  const updateDoc = { $set: {status: "accepted" } };
-  const result = await Committee.updateOne(post_id, updateDoc)
-  
+  const post_id = { _id: id };
+  const emailq = await Committee.findOne({ _id: id });
+  console.log("here: " + emailq.members);
+  const updateDoc = { $set: { status: "accepted" } };
+  const result = await Committee.updateOne(post_id, updateDoc);
+
   // console.log(process.env.USER);
   // console.log(process.env.PASS);
   const transporter = nodemailer.createTransport({
-    port: 465,               // true for 465, false for other ports
+    port: 465, // true for 465, false for other ports
     host: "smtp.gmail.com",
-       auth: {
-            user: process.env.USER,
-           
-            pass: process.env.PASS,
-            
-         },
+    auth: {
+      user: process.env.USER,
+
+      pass: process.env.PASS,
+    },
     secure: true,
-    });
+  });
+  let gen_pass = createRandomString();
+  let gen_user = createUser();
+  gen_user = emailq.cname + gen_user;
+  console.log("gen pass " + gen_pass + " gen user " + gen_user);
+  const mailData = {
+    from: process.env.USER, // sender address
+    to: emailq.members, // list of receivers
+    subject: "Your Request for forming a committee has been Accepted",
+    text: process.env.TEXT,
+    html:
+      "<b>Hey there! </b> <br> Your Request for forming a committee has been accepted by the Admin<br/> Use the below credentials to Login<br> Username: " +
+      gen_user +
+      "<br> Password: " +
+      gen_pass,
+  };
 
-    const mailData = {
-      from: process.env.USER,  // sender address
-        to:emailq.members,   // list of receivers
-        subject: 'Your Request for forming a committee has been Accepted',
-        text: process.env.TEXT,
-        html: '<b>Hey there! </b> <br> Your Request for forming a committee has been accepted by the Admin<br/> Use the below credentials to Login<br> Username: Dummy <br> Password: Dummy',
-      };
+  // An array of attachments
+  //   attachments: [
+  //     {
+  //         filename: 'text notes.txt',
+  //         path: 'notes.txt
+  //     },
+  //  ]
 
+  transporter.sendMail(mailData, function (err, info) {
+    if (err) console.log(err);
+    else console.log(info);
+  });
+  let newSignup = new Signup({
+    uname: gen_user,
+    pswd1: gen_pass,
+    role: "committee",
+  });
+  newSignup.save();
+  res.redirect("/test2");
+});
 
-      // An array of attachments
-    //   attachments: [
-    //     {
-    //         filename: 'text notes.txt',
-    //         path: 'notes.txt
-    //     },
-    //  ]
-
-    transporter.sendMail(mailData, function (err, info) {
-      if(err)
-        console.log(err)
-      else
-        console.log(info);
-   });
-})
-
-
-app.get("/admin_reject", async(req, res)=> {
+app.get("/admin_reject", async (req, res) => {
   const id = req.query.data1;
-  const post_id = { _id: id};
-  const emailq= await Committee.findOne({_id:id})
-  console.log("here: "+emailq.members);
-  const updateDoc = { $set: {status: "rejected" } };
-  const result = await Committee.updateOne(post_id, updateDoc)
-
+  const post_id = { _id: id };
+  const emailq = await Committee.findOne({ _id: id });
+  console.log("here: " + emailq.members);
+  const updateDoc = { $set: { status: "rejected" } };
+  const result = await Committee.updateOne(post_id, updateDoc);
 
   const transporter = nodemailer.createTransport({
-    port: 465,               // true for 465, false for other ports
+    port: 465, // true for 465, false for other ports
     host: "smtp.gmail.com",
-       auth: {
-            user: process.env.USER,
-           
-            pass: process.env.PASS,
-            
-         },
+    auth: {
+      user: process.env.USER,
+
+      pass: process.env.PASS,
+    },
     secure: true,
-    });
+  });
 
-    const mailData = {
-      from: process.env.USER,  // sender address
-        to:emailq.members,   // list of receivers
-        subject: 'Your Request for forming a committee has been Rejected',
-        text: process.env.TEXT,
-        html: '<b>Hey there! </b> <br>Sorry to inform your Request for forming a committee has been <b>Rejected</b> by the Admin<br/> Rejection Reason: Dummy',
-      };
+  const mailData = {
+    from: process.env.USER, // sender address
+    to: emailq.members, // list of receivers
+    subject: "Your Request for forming a committee has been Rejected",
+    text: process.env.TEXT,
+    html: "<b>Hey there! </b> <br>Sorry to inform your Request for forming a committee has been <b>Rejected</b> by the Admin<br/> Rejection Reason: Dummy",
+  };
 
+  transporter.sendMail(mailData, function (err, info) {
+    if (err) console.log(err);
+    else console.log(info);
+  });
+});
 
-      transporter.sendMail(mailData, function (err, info) {
-        if(err)
-          console.log(err)
-        else
-          console.log(info);
-     });
-
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+app.get("/home", function (req, res) {
+  res.render("Homepage.hbs", {});
+});
 
 app.listen(3000, function () {
   console.log("server is running on 3000");
