@@ -20,6 +20,8 @@ npm i cookie-parser
 
 npm i hbs
 
+npm i dotenv
+
 To run the project run follwing command in terminal:
 
 npm run dev
