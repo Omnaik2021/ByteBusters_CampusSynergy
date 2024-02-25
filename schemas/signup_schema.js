@@ -13,6 +13,7 @@ const signup = {
   pswd1: { type: String, required: true },
   pswd2: { type: String },
   role: { type: String },
+  reg_events: { type: [String] },
 };
 
 const SignUp = mongoose.model("SignUp", signup);

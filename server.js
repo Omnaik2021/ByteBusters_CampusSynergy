@@ -17,6 +17,7 @@ const { log } = require("console");
 const Committee = require("./schemas/committee_schema.js");
 const Event = require("./schemas/event_schema.js");
 const Book = require("./schemas/book_schema.js");
+const SignUp = require("./schemas/signup_schema.js");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "hbs");
@@ -152,6 +153,7 @@ app.post("/signup", function (req, res) {
 });
 
 app.post("/", async (req, res) => {
+  req.session.isLogin = false;
   const uname = req.body.uname;
   const pswd = req.body.pswd;
   try {
@@ -191,6 +193,7 @@ app.post("/", async (req, res) => {
 
         if (luser.role === "student") {
           // res.render("admin", {user} );
+          req.session.isLogin = true;
           res.render("Homepage.hbs", { isLogin: true });
           console.log("student login succesfull");
         } else if (luser.role === "admin") {
@@ -450,7 +453,7 @@ app.get("/admin_reject", async (req, res) => {
 });
 
 app.get("/home", function (req, res) {
-  res.render("Homepage.hbs", {});
+  res.render("Homepage.hbs", { isLogin: req.session.isLogin });
 });
 
 app.post("/event", async (req, res) => {
@@ -577,6 +580,64 @@ app.post("/venue", async (req, res) => {
 app.get("/sample", function (req, res) {
   data = req.session.data;
   console.log(data);
+});
+
+app.get("/event_list", async (req, res) => {
+  const luser2 = await Event.find({
+    $and: [
+      { fmentor: "approved" },
+      { dean: "approved" },
+      { hod: "approved" },
+      { princi: "approved" },
+    ],
+  });
+  res.render("event-list.hbs", { listy: luser2, isLogin: req.session.isLogin });
+});
+
+app.get("/event_register", async (req, res) => {
+  const eventid = req.query.data1;
+  const isLogin = req.session.isLogin;
+  if (isLogin === true) {
+    const user_id = { _id: req.cookies.jwt };
+    console.log(user_id);
+    const update_doc = { $push: { reg_events: eventid } };
+    const result = await SignUp.updateOne(user_id, update_doc);
+    res.send(
+      "You have been added to the event <a href='/home'>Click here to go to home page</a>"
+    );
+  } else {
+    res.redirect("/");
+  }
+  console.log(isLogin);
+});
+
+app.get("/r_events", async (req, res) => {
+  const user_id = { _id: req.cookies.jwt };
+  const luser2 = await Signup.find({ _id: user_id });
+  const event_ids = luser2.flatMap((item) => item.reg_events);
+  // console.log(event_ids.len);
+  console.log("All reg_events:", event_ids);
+  const allevents = await Event.find({
+    _id: { $in: event_ids },
+  });
+  // console.log(luser2[0][reg_events][0]);
+  // const allevents = new Array(event_ids.length);
+  // console.log("len " + event_ids.len);
+  // for (var i = 0; i < event_ids.len; i++) {
+  //   allevents[i] = await Event.find({ _id: { _id: allevents[i] } });
+  //   console.log(allevents[i]);
+  // }
+  // console.log(allevents);
+  res.render("r_eventlist.hbs", {
+    listy: allevents,
+    isLogin: req.session.isLogin,
+  });
+});
+
+app.get("/logout", function (req, res) {
+  req.session.isLogin = false;
+  res.clearCookie("jwt");
+  res.redirect("/");
 });
 
 app.listen(3000, function () {
