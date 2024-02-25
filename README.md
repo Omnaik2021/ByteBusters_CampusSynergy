@@ -37,3 +37,5 @@ This will take you to a placeholder home page.
 Committee creation function has been created partially
 
 **Work is in progress........**
+
+Note: .env has been pushed to github only for demo purpose
