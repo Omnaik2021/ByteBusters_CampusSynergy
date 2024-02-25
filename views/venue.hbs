@@ -1,0 +1,152 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css">    
+  <link rel="stylesheet" href="../CSS\style.css">
+    <link rel="stylesheet" href="../CSS\stylea.css">
+    <link rel="stylesheet" href="../CSS\responsive-style.css">
+    <title>Event Creation</title>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navigation-wrap">
+          <div class="container">
+            <a class="navbar-brand" href="#"><img decoding="async" src="assets\logomain.png"></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+              aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+              <i class="fas fa-stream navbar-toggler-icon"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+              <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                  <a class="nav-link active" aria-current="page" href="#home">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#about">About Us</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#testimonial">Events Section</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#faq">Process</a>
+                </li>
+                <li><button class="main-btn">Login/Signup</button></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+      
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+
+    <div class="row border rounded-5 p-3 bg-white shadow box-area" id="zinga">
+       <div class="col-md-6 right-box">
+          <div class="row align-items-center">
+                <div class="header-text mb-4">
+                     <h2>Select the Venue</h2>
+                </div>
+                <form method="post">
+                {{!-- <div class="input-group mb-3">
+                    <input type="text" class="form-control form-control-lg bg-light fs-6" placeholder="Event Name" name="ename">
+                </div>
+                <div class="input-group mb-3">
+                    <textarea class="form-control form-control-lg bg-light fs-6" resizable="none" placeholder="Event Description" name="edesc"></textarea>
+                </div> --}}
+                {{!-- <label for="use">Add Event Date</label>
+                <div class="input-group mb-3">
+                    <input type="date" min="2018-01-01" max="2018-12-31"class="form-control form-control-lg bg-light fs-6" placeholder="Event Date" id="use">
+                </div> --}}
+
+              {{!-- <label for="use">Add Event Date</label>
+              <div class="input-group mb-3">
+                <input type="date" class="form-control form-control-lg bg-light fs-6" placeholder="Event Date" id="use" name="edate">
+              </div> --}}
+
+                {{!-- <label for="usa">Add Event Start Time</label>
+                <div class="input-group mb-3">
+                    <input type="time" class="form-control form-control-lg bg-light fs-6" placeholder="Event Start Time" id="usa">
+                </div>
+                <label for="usb">Add Event End Time</label>
+                <div class="input-group mb-3">
+                    <input type="time" class="form-control form-control-lg bg-light fs-6" placeholder="Event End Time" id="'usb">
+                </div> --}}
+                <div class="input-group mb-3">
+              <label for="dropdown">Select from the Available Rooms &nbsp; </label> 
+  <select id="dropdown"  name="venue">
+
+        {{#each data2}}
+        {{#if this}}
+        <option value="{{this}}">{{this}}</option>
+        {{/if}}
+        {{/each}}
+
+
+    
+  </select>
+</div>
+                {{!-- <div class="input-group mb-1">
+                    <input type="number" max=60 class="form-control form-control-lg bg-light fs-6" placeholder="Total No of participants" name="nop">
+                </div> --}}
+                <div class="input-group mb-5 d-flex justify-content-between">
+                </div>
+                <div class="input-group mb-3">
+                    <button type="submit" class="btn btn-lg btn-success w-75 mx-auto fs-6">Send Request</button>
+                </div>                
+                {{!-- <div class="input-group mb-3">
+                    <a href="/event"><button class="btn btn-lg btn-primary w-100 fs-6">Submit</button></a>
+                </div> --}}
+                
+
+            </form>
+          </div>
+       
+
+      </div>
+    </div>
+    <!-- JS Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js"></script>
+  <!-- own js -->
+
+<script>
+    // Get the current date
+    var currentDate = new Date();
+
+    // Format the date as a string (YYYY-MM-DD)
+    var formattedDate = currentDate.toISOString().split('T')[0];
+
+    // Set the min attribute of the date input field
+    document.getElementById("use").setAttribute("min", formattedDate);
+  </script>
+
+
+  <script>
+
+
+// active navbar
+let nav = document.querySelector(".navigation-wrap");
+window.onscroll = function () {
+    if(document.documentElement.scrollTop  > 20){
+        nav.classList.add("scroll-on");
+    }else{
+        nav.classList.remove("scroll-on");
+    }
+}
+
+// nav hide 
+let navBar = document.querySelectorAll('.nav-link');
+let navCollapse = document.querySelector('.navbar-collapse.collapse');
+navBar.forEach(function(a){
+    a.addEventListener("click", function(){
+        navCollapse.classList.remove("show");
+})
+})
+
+  </script>
+</body>
+</html> 

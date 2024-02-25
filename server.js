@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 // const jwt = require("jsonwebtoken");
 const path = require("path");
 const nodemailer = require("nodemailer");
+const session = require('express-session');
 require("dotenv").config();
 
 const Signup = require("./schemas/signup_schema.js");
@@ -14,10 +15,17 @@ const cookieParser = require("cookie-parser");
 
 const { log } = require("console");
 const Committee = require("./schemas/committee_schema.js");
-
+const Event = require("./schemas/event_schema.js");
+const Book = require("./schemas/book_schema.js");
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "hbs");
+
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: true
+}));
 
 const mg = mongoose.connect(process.env.MDB, { useNewUrlParser: true });
 // app.use(express.static(__dirname + "/assets"));
@@ -66,6 +74,10 @@ app.get("/signup", function (req, res) {
 
 app.get("/test1.html", function (req, res) {
   res.sendFile(__dirname + "/test1.html");
+});
+
+app.get("/event", function (req, res) {
+  res.render("event-form.hbs");
 });
 
 // app.post("/", function (req, res) {
@@ -290,6 +302,107 @@ app.get("/admin_reject", async (req, res) => {
 
 app.get("/home", function (req, res) {
   res.render("Homepage.hbs", {});
+});
+
+
+app.post("/event", async (req, res)=> {
+  
+   if(!req.body.venue){
+     edate1 = req.body.edate;
+     sesh1 = req.body.sesh;
+    ename1 = req.body.ename;
+    edesc1 = req.body.edesc; 
+    nop1=req.body.nop; 
+   }
+   
+  venue = req.body.venue
+  
+  // let newEvent = new Event({
+  //   ename:req.body.ename,
+  //   edesc:req.body.edesc,
+  //   edate:req.body.edate,
+  //   sesh: req.body.sesh,
+  //   nop:req.body.nop,
+  //   room_req:"nothing"
+  // });
+  // const savedEvent = await newEvent.save();
+  // let eid =savedEvent._id;
+  // const eid2 = { _id: eid };
+  // const eid = objectIdString.toString();
+  // console.log(eid2);
+if(venue){
+  
+    
+// sadadsadasd
+venue = req.body.venue
+  console.log(venue);
+  let room = "r"+ venue.charAt(9);;
+  console.log(room);
+  // console.log(eid2);
+  let newEvent =  new Event({
+    ename:ename1,
+    edesc:edesc1,
+    edate:edate1,
+    sesh: sesh1,
+    nop:nop1,
+    room_req:room,
+  });
+  newEvent.save();
+    
+  }
+
+else{
+  const isPresent = await Book.findOne({ $and: [{ date: edate1 }, { sesh: sesh1 }] })
+  if(isPresent){
+    
+    console.log(isPresent);
+    let avRooms=new Array(6);
+    avRooms[0,0,0,0,0,0];
+    for(i=1;i<=6;i++)
+    {
+      if(isPresent["r"+i]=="available"){
+         avRooms[i-1]="ROOM NO: "+i;
+      }
+    }
+    // res.redirect("/venue",{data2: avRooms})
+    res.render("venue.hbs",{data2: avRooms});
+    // req.session.data = 2;
+    // res.redirect("/sample")
+  }
+  else{
+    console.log("Not found");
+   
+    let newBook = new Book({
+      date: edate1,
+      sesh: sesh1,
+      r1:"available",
+      r2:"available",
+      r3:"available",
+      r4:"available",
+      r5:"available",
+      r6:"available",
+      
+    });
+    newBook.save();
+}
+}
+});
+
+
+app.get("/venue", function (req, res) {
+  res.render("venue.hbs",{data2: avRooms});
+});
+
+
+
+app.post("/venue", async (req, res)=> {
+  let room = req.body.venue;
+  console.log(room);
+})
+
+app.get("/sample", function (req,res){
+  data =req.session.data;
+  console.log(data);
 });
 
 app.listen(3000, function () {

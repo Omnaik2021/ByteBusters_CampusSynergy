@@ -6,15 +6,13 @@ body{
 }
 
 .box-area{
-    width: 100%;
-    max-width: 700px;
+    width: 700px;
     margin-top: 80px;
-    padding: 40px; /* Adjusted padding */
+    padding: 140px;
 }
 
 .right-box{
-    padding: 40px; /* Adjusted padding */
-    width: 100%; /* Make the right box fill the entire box area */
+    padding: 40px 30px 40px 40px;
 }
 
 ::placeholder{
@@ -29,11 +27,19 @@ body{
 }
 
 @media only screen and (max-width: 768px){
+
      .box-area{
-        margin: 10px;
-        padding-top: 20px; /* Adjusted padding-top */
+        margin: 10px 10px;
+        padding-top: 130px;
+
      }
+     /* .left-box{
+        height: 100px;
+        overflow: hidden;
+     } */
      .right-box{
         padding: 20px;
      }
+
 }
+

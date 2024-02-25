@@ -12,7 +12,7 @@
 </head>
 <body>
     
-<table border="1">
+{{!-- <table border="1">
     <thead>
         <tr>
             <th>Committee Name</th>
@@ -23,7 +23,7 @@
         </tr>
     </thead>
     <tbody>
-        {{#each listy }}
+        {{!-- {{#each listy }}
 
         <tr>
             <td>{{cname}}</td>
@@ -33,12 +33,17 @@
             <td><a href="admin_accept?data1={{_id}}"><button class="acknowledge_button">Accept</button></a></td>
             <td><a href="admin_reject?data1={{_id}}"><button class="acknowledge_button">Reject</button></a></td>
         </tr>
-            {{/each}}
+            {{/each}} --}}
         
         <!-- Add more rows as needed -->
-    </tbody>
-</table>
-
-
+    {{!-- </tbody>
+</table> --}} 
+{{!-- {{#for data2}} --}}
+{{#each data2}}
+{{#if this}}
+<h1>hi :::::: {{this}}<h1>
+{{/if}}
+{{/each}}
+{{!-- {{}} --}}
 </body>
 </html>
