@@ -42,13 +42,22 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + "/Login.html");
 });
 
-app.get("/test2", async (req, res) => {
+app.get("/Admin", async (req, res) => {
   const luser2 = await Committee.find({ status: "pending" });
   console.log(luser2);
   // console.log(process.env.S3_BUCKET)
   // res.sendFile(__dirname + "/test2.html");
   // res.json(luser2);
-  res.render("test2.hbs", { listy: luser2 });
+  res.render("Admin.hbs", { listy: luser2 });
+});
+
+app.get("/Admin_history", async (req, res) => {
+  const luser2 = await Committee.find();
+  console.log(luser2);
+  // console.log(process.env.S3_BUCKET)
+  // res.sendFile(__dirname + "/test2.html");
+  // res.json(luser2);
+  res.render("Admin_history.hbs", { listy: luser2 });
 });
 
 app.get("/signup", function (req, res) {
@@ -84,54 +93,63 @@ app.post("/signup", function (req, res) {
 app.post("/", async (req, res) => {
   const uname = req.body.uname;
   const pswd = req.body.pswd;
-
-  const luser = await Signup.findOne({ uname });
-  const user_id = luser._id;
-  let isMatch = false;
-  console.log(pswd + "  " + luser.pswd1);
-  if (pswd === luser.pswd1) {
-    isMatch = true;
-  } else {
-    isMatch = false;
-  }
   try {
-    res.cookie("jwt", user_id, {
-      expires: new Date(Date.now() + 1800000),
-      httpOnly: true,
-    });
-    // res.cookie("jwt", user_id);
-    // const jwt.sign()
-    console.log("usid :" + user_id);
-    const decoded = req.cookies.jwt;
-    console.log("Cookie:" + decoded);
-  } catch (e) {
-    console.log(e);
-  }
-  console.log("Cookies getting log");
+    const luser = await Signup.findOne({ uname });
+    const user_id = luser._id;
+    let isMatch = false;
+    console.log(pswd + "  " + luser.pswd1);
+    if (pswd === luser.pswd1) {
+      isMatch = true;
+    } else {
+      isMatch = false;
+    }
+    try {
+      res.cookie("jwt", user_id, {
+        expires: new Date(Date.now() + 1800000),
+        httpOnly: true,
+      });
+      // res.cookie("jwt", user_id);
+      // const jwt.sign()
+      console.log("usid :" + user_id);
+      const decoded = req.cookies.jwt;
+      console.log("Cookie:" + decoded);
+    } catch (e) {
+      console.log(e);
+    }
+    console.log("Cookies getting log");
 
-  if (luser) {
-    if (isMatch) {
-      const user = {
-        fname: luser.fname,
-        uname: luser.uname,
-        email: luser.email,
-      };
-      // req.session.user = user;
-      // req.session.save(session.user);
+    if (luser) {
+      if (isMatch) {
+        const user = {
+          fname: luser.fname,
+          uname: luser.uname,
+          email: luser.email,
+        };
+        // req.session.user = user;
+        // req.session.save(session.user);
 
-      if (luser.role === "student") {
-        // res.render("admin", {user} );
-        res.render("Homepage.hbs", { isLogin: true });
-        console.log("student login succesfull");
+        if (luser.role === "student") {
+          // res.render("admin", {user} );
+          res.render("Homepage.hbs", { isLogin: true });
+          console.log("student login succesfull");
+        } else if (luser.role === "admin") {
+          res.redirect("/Admin");
+          console.log("Committee login succesfull");
+        } else {
+          res.send(
+            "Committee login succesfull <br>Committee pages currently in development ......."
+          );
+          console.log("Committee login succesfull");
+        }
       } else {
-        res.redirect("test2.html");
-        console.log("Committee login succesfull");
+        res.send("Invalid Credentials");
       }
     } else {
       res.send("Invalid Credentials");
     }
-  } else {
+  } catch (e) {
     res.send("Invalid Credentials");
+    return;
   }
 });
 
@@ -233,7 +251,7 @@ app.get("/admin_accept", async (req, res) => {
     role: "committee",
   });
   newSignup.save();
-  res.redirect("/test2");
+  res.redirect("/Admin");
 });
 
 app.get("/admin_reject", async (req, res) => {
@@ -267,6 +285,7 @@ app.get("/admin_reject", async (req, res) => {
     if (err) console.log(err);
     else console.log(info);
   });
+  res.render("/Admin");
 });
 
 app.get("/home", function (req, res) {
