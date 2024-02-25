@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 // const jwt = require("jsonwebtoken");
 const path = require("path");
 const nodemailer = require("nodemailer");
-const session = require('express-session');
+const session = require("express-session");
 require("dotenv").config();
 
 const Signup = require("./schemas/signup_schema.js");
@@ -21,11 +21,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.set("view engine", "hbs");
 
-app.use(session({
-  secret: 'your-secret-key',
-  resave: false,
-  saveUninitialized: true
-}));
+app.use(
+  session({
+    secret: "your-secret-key",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 const mg = mongoose.connect(process.env.MDB, { useNewUrlParser: true });
 // app.use(express.static(__dirname + "/assets"));
@@ -57,6 +59,53 @@ app.get("/Admin", async (req, res) => {
   // res.sendFile(__dirname + "/test2.html");
   // res.json(luser2);
   res.render("Admin.hbs", { listy: luser2 });
+});
+
+app.get("/fmentor", async (req, res) => {
+  const luser2 = await Event.find({ fmentor: "pending" });
+  console.log(luser2);
+  // console.log(process.env.S3_BUCKET)
+  // res.sendFile(__dirname + "/test2.html");
+  // res.json(luser2);
+  res.render("fmentor.hbs", { listy: luser2 });
+});
+
+app.get("/hod", async (req, res) => {
+  const luser2 = await Event.find({
+    $and: [{ fmentor: "approved" }, { dean: "approved" }, { hod: "pending" }],
+  });
+  console.log(luser2);
+  // console.log(process.env.S3_BUCKET)
+  // res.sendFile(__dirname + "/test2.html");
+  // res.json(luser2);
+  res.render("hod.hbs", { listy: luser2 });
+});
+
+app.get("/dean", async (req, res) => {
+  const luser2 = await Event.find({
+    $and: [{ fmentor: "approved" }, { dean: "pending" }],
+  });
+  console.log(luser2);
+  // console.log(process.env.S3_BUCKET)
+  // res.sendFile(__dirname + "/test2.html");
+  // res.json(luser2);
+  res.render("dean.hbs", { listy: luser2 });
+});
+
+app.get("/princi", async (req, res) => {
+  const luser2 = await Event.find({
+    $and: [
+      { fmentor: "approved" },
+      { dean: "approved" },
+      { hod: "approved" },
+      { princi: "pending" },
+    ],
+  });
+  console.log(luser2);
+  // console.log(process.env.S3_BUCKET)
+  // res.sendFile(__dirname + "/test2.html");
+  // res.json(luser2);
+  res.render("princi.hbs", { listy: luser2 });
 });
 
 app.get("/Admin_history", async (req, res) => {
@@ -146,7 +195,19 @@ app.post("/", async (req, res) => {
           console.log("student login succesfull");
         } else if (luser.role === "admin") {
           res.redirect("/Admin");
-          console.log("Committee login succesfull");
+          console.log("admin login succesfull");
+        } else if (luser.role === "fmentor") {
+          res.redirect("/fmentor");
+          console.log("fmentor login succesfull");
+        } else if (luser.role === "hod") {
+          res.redirect("/hod");
+          console.log("hod login succesfull");
+        } else if (luser.role === "dean") {
+          res.redirect("/dean");
+          console.log("dean login succesfull");
+        } else if (luser.role === "princi") {
+          res.redirect("/princi");
+          console.log("princi login succesfull");
         } else {
           res.send(
             "Committee login succesfull <br>Committee pages currently in development ......."
@@ -208,6 +269,94 @@ function createUser() {
   }
   return result;
 }
+
+app.get("/fmentor_accept", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  // const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  console.log("sigme forvever" + post_id._id);
+  const updateDoc = { $set: { fmentor: "approved" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/fmentor");
+  console.log(result);
+});
+
+app.get("/fmentor_reject", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  const updateDoc = { $set: { fmentor: "rejected" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/fmentor");
+});
+
+app.get("/dean_accept", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  // const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  console.log("sigme forvever" + post_id._id);
+  const updateDoc = { $set: { dean: "approved" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/dean");
+  console.log(result);
+});
+
+app.get("/dean_reject", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  const updateDoc = { $set: { dean: "rejected" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/dean");
+});
+
+app.get("/hod_accept", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  // const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  console.log("sigme forvever" + post_id._id);
+  const updateDoc = { $set: { hod: "approved" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/hod");
+  console.log(result);
+});
+
+app.get("/hod_reject", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  const updateDoc = { $set: { hod: "rejected" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/hod");
+});
+
+app.get("/princi_accept", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  // const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  console.log("sigme forvever" + post_id._id);
+  const updateDoc = { $set: { princi: "approved" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/princi");
+  console.log(result);
+});
+
+app.get("/princi_reject", async (req, res) => {
+  const id = req.query.data1;
+  const post_id = { _id: id };
+  const emailq = await Event.findOne({ _id: id });
+  // console.log("here: " + emailq.members);
+  const updateDoc = { $set: { princi: "rejected" } };
+  const result = await Event.updateOne(post_id, updateDoc);
+  res.redirect("/princi");
+});
 
 app.get("/admin_accept", async (req, res) => {
   const id = req.query.data1;
@@ -304,19 +453,17 @@ app.get("/home", function (req, res) {
   res.render("Homepage.hbs", {});
 });
 
-
-app.post("/event", async (req, res)=> {
-  
-   if(!req.body.venue){
-     edate1 = req.body.edate;
-     sesh1 = req.body.sesh;
+app.post("/event", async (req, res) => {
+  if (!req.body.venue) {
+    edate1 = req.body.edate;
+    sesh1 = req.body.sesh;
     ename1 = req.body.ename;
-    edesc1 = req.body.edesc; 
-    nop1=req.body.nop; 
-   }
-   
-  venue = req.body.venue
-  
+    edesc1 = req.body.edesc;
+    nop1 = req.body.nop;
+  }
+
+  venue = req.body.venue;
+
   // let newEvent = new Event({
   //   ename:req.body.ename,
   //   edesc:req.body.edesc,
@@ -330,78 +477,105 @@ app.post("/event", async (req, res)=> {
   // const eid2 = { _id: eid };
   // const eid = objectIdString.toString();
   // console.log(eid2);
-if(venue){
-  
-    
-// sadadsadasd
-venue = req.body.venue
-  console.log(venue);
-  let room = "r"+ venue.charAt(9);;
-  console.log(room);
-  // console.log(eid2);
-  let newEvent =  new Event({
-    ename:ename1,
-    edesc:edesc1,
-    edate:edate1,
-    sesh: sesh1,
-    nop:nop1,
-    room_req:room,
-  });
-  newEvent.save();
-    
-  }
+  if (venue) {
+    // sadadsadasd
+    venue = req.body.venue;
+    console.log(venue);
 
-else{
-  const isPresent = await Book.findOne({ $and: [{ date: edate1 }, { sesh: sesh1 }] })
-  if(isPresent){
-    
-    console.log(isPresent);
-    let avRooms=new Array(6);
-    avRooms[0,0,0,0,0,0];
-    for(i=1;i<=6;i++)
-    {
-      if(isPresent["r"+i]=="available"){
-         avRooms[i-1]="ROOM NO: "+i;
+    // console.log(room);
+    // console.log(eid2);
+    // const result = await Committee.updateOne(post_id, updateDoc);
+    const isPresent = await Book.findOne({
+      $and: [{ date: edate1 }, { sesh: sesh1 }],
+    });
+    console.log("isprevs " + isPresent);
+    const post_id = { id: isPresent._id };
+    const room = "r" + venue.charAt(9);
+    console.log(room);
+    const updateDoc = { $set: { [room]: "unavailable" } };
+
+    const result = await Book.updateOne({ _id: isPresent._id }, updateDoc);
+    console.log(result);
+    let newEvent = new Event({
+      ename: ename1,
+      edesc: edesc1,
+      edate: edate1,
+      sesh: sesh1,
+      nop: nop1,
+      room_req: room,
+      fmentor: "pending",
+      dean: "pending",
+      hod: "pending",
+      princi: "pending",
+    });
+    newEvent.save();
+    res.send(
+      "Your Requested has been submitted.<a href='/home'>Click here to go to home page</a>"
+    );
+  } else {
+    const isPresent = await Book.findOne({
+      $and: [{ date: edate1 }, { sesh: sesh1 }],
+    });
+    if (isPresent) {
+      console.log(isPresent);
+      let avRooms = new Array(6);
+      avRooms[(0, 0, 0, 0, 0, 0)];
+      for (i = 1; i <= 6; i++) {
+        if (isPresent["r" + i] == "available") {
+          avRooms[i - 1] = "ROOM NO: " + i;
+        }
+      }
+      // res.redirect("/venue",{data2: avRooms})
+      res.render("venue.hbs", { data2: avRooms });
+      // req.session.data = 2;
+      // res.redirect("/sample")
+    } else {
+      console.log("Not found");
+
+      let newBook = new Book({
+        date: edate1,
+        sesh: sesh1,
+        r1: "available",
+        r2: "available",
+        r3: "available",
+        r4: "available",
+        r5: "available",
+        r6: "available",
+      });
+
+      await newBook.save();
+      const isPresent = await Book.findOne({
+        $and: [{ date: edate1 }, { sesh: sesh1 }],
+      });
+      if (isPresent) {
+        console.log(isPresent);
+        let avRooms = new Array(6);
+        avRooms[(0, 0, 0, 0, 0, 0)];
+        for (i = 1; i <= 6; i++) {
+          if (isPresent["r" + i] == "available") {
+            avRooms[i - 1] = "ROOM NO: " + i;
+          }
+        }
+        // res.redirect("/venue",{data2: avRooms})
+        res.render("venue.hbs", { data2: avRooms });
+        // req.session.data = 2;
+        // res.redirect("/sample")
       }
     }
-    // res.redirect("/venue",{data2: avRooms})
-    res.render("venue.hbs",{data2: avRooms});
-    // req.session.data = 2;
-    // res.redirect("/sample")
   }
-  else{
-    console.log("Not found");
-   
-    let newBook = new Book({
-      date: edate1,
-      sesh: sesh1,
-      r1:"available",
-      r2:"available",
-      r3:"available",
-      r4:"available",
-      r5:"available",
-      r6:"available",
-      
-    });
-    newBook.save();
-}
-}
 });
-
 
 app.get("/venue", function (req, res) {
-  res.render("venue.hbs",{data2: avRooms});
+  res.render("venue.hbs", { data2: avRooms });
 });
 
-
-
-app.post("/venue", async (req, res)=> {
+app.post("/venue", async (req, res) => {
   let room = req.body.venue;
   console.log(room);
-})
+});
 
-app.get("/sample", function (req,res){
-  data =req.session.data;
+app.get("/sample", function (req, res) {
+  data = req.session.data;
   console.log(data);
 });
 
